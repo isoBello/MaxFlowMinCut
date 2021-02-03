@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
 
+graph = None
+
 
 class Graph:
     def __init__(self, vertices):
@@ -21,6 +23,7 @@ class Graph:
 
 def create_graph():
     num_vertices, num_edges = (map(int, input().split(" ")))
+    global graph
     graph = Graph(num_vertices)
 
     while True:
@@ -38,9 +41,11 @@ def BFS(source, sink, parent):
     stack = [source]
     visited[source] = True
 
+    global graph
+
     while stack:
         u = stack.pop(0)
-        for v in Graph.edges[u]:
+        for v in graph.edges[u]:
             if not visited[v]:
                 stack.append(v)
                 visited[v] = True
@@ -52,13 +57,15 @@ def BFS(source, sink, parent):
 
 # The DFS method is used to search in traversal of the graph
 def DFS(source, visited):
+    global graph
     visited[source] = True
-    for v in range(len(Graph.vertices)):
-        if v in Graph.edges[s] and not visited[v]:
+    for v in range(len(graph.vertices)):
+        if v in graph.edges[s] and not visited[v]:
             DFS(v, visited)
 
 
 def find_minCut(source, sink):
+    global graph
     parent = [-1] * sink
     maximum_flow = 0
 
@@ -73,15 +80,20 @@ def find_minCut(source, sink):
         vertex = sink
         while vertex != source:
             u = parent[vertex]
-            Graph.weight[u, vertex] -= flow
-            Graph.weight[vertex, u] += flow
+            graph.weight[u, vertex] -= flow
+            graph.weight[vertex, u] += flow
             vertex = parent[vertex]
 
-        visited = len(Graph.vertices) * [False]
-        DFS(source, visited)
+    visited = len(graph.vertices) * [False]
+    DFS(source, visited)
+
+    for u in range(len(graph.vertices)):
+        for v in graph.edges[u]:
+            if graph.weights[u, v] == 0 and visited[u]:
+                print(str(u) + " - " + str(v))
 
 
 if __name__ == "__main__":
     create_graph()
-    s = 1; t = len(Graph.vertices)
+    s = 1; t = len(graph.vertices)
     find_minCut(s, t)
