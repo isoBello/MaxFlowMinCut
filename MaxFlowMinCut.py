@@ -26,10 +26,11 @@ def create_graph():
     global graph
     graph = Graph(num_vertices)
 
-    while True:
+    while num_edges > 0:
         try:
             u, v = (map(int, input().split(" ")))
             graph.add_edge(u, v)
+            num_edges -= 1
         except EOFError:
             break
 
@@ -37,19 +38,18 @@ def create_graph():
 # This is based on the implementation of the CLRS book.
 # The ford-fulkerson algorithm needs to run BFS to find the augmentation path.
 def BFS(source, sink, parent):
-    visited = [False] * sink
+    global graph
+    visited = [False] * (sink + 1)
     stack = [source]
     visited[source] = True
-
-    global graph
 
     while stack:
         u = stack.pop(0)
         for v in graph.edges[u]:
-            if not visited[v]:
-                stack.append(v)
+            if not visited[v] and graph.weights[u, v] > 0:
                 visited[v] = True
                 parent[v] = u
+                stack.append(v)
 
     # This 'return' means that we have a path between source and sink, founded by BFS
     return True if visited[sink] else False
@@ -59,6 +59,7 @@ def BFS(source, sink, parent):
 def DFS(source, visited):
     global graph
     visited[source] = True
+
     for v in range(len(graph.vertices)):
         if v in graph.edges[s] and not visited[v]:
             DFS(v, visited)
@@ -66,34 +67,39 @@ def DFS(source, visited):
 
 def find_minCut(source, sink):
     global graph
-    parent = [-1] * sink
+    parent = [-1] * (sink + 1)
     maximum_flow = 0
 
     while BFS(source, sink, parent):
-        flow = float('infinity')
+        flow = 99999
         vertex = sink
         while vertex != source:
-            flow = min(flow, parent[vertex])
+            flow = min(flow, graph.weights[parent[vertex], vertex])
             vertex = parent[vertex]
 
         maximum_flow += flow
         vertex = sink
+
         while vertex != source:
             u = parent[vertex]
-            graph.weight[u, vertex] -= flow
-            graph.weight[vertex, u] += flow
+            graph.weights[u, vertex] -= flow
+            graph.weights[vertex, u] += flow
             vertex = parent[vertex]
 
     visited = len(graph.vertices) * [False]
     DFS(source, visited)
 
+    answer = 0
     for u in range(len(graph.vertices)):
         for v in graph.edges[u]:
             if graph.weights[u, v] == 0 and visited[u]:
-                print(str(u) + " - " + str(v))
+                answer += 1
+
+    print(answer)
 
 
 if __name__ == "__main__":
     create_graph()
-    s = 1; t = len(graph.vertices)
+    s = 1
+    t = len(graph.vertices)
     find_minCut(s, t)
