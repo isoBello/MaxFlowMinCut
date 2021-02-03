@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
 
+
 class Graph:
     def __init__(self, vertices):
         # Using a list of adjacency to represent the graph
@@ -16,6 +17,7 @@ class Graph:
 
         self.weights[(u, v)] = 1
         self.weights[(v, u)] = 1
+
 
 def create_graph():
     num_vertices, num_edges = (map(int, input().split(" ")))
@@ -44,16 +46,39 @@ def BFS(source, sink, parent):
                 visited[v] = True
                 parent[v] = u
 
-    # This means that we have a path between source and sink, founded by BFS
+    # This 'return' means that we have a path between source and sink, founded by BFS
     return True if visited[sink] else False
 
 
-# def find_minCut(source, sink):
-#     parent = [-1] * sink
-#     maximum_flow = 0
-#
-#     while BFS(source, sink, parent):
+# The DFS method is used to search in traversal of the graph
+def DFS(source, visited):
+    visited[source] = True
+    for v in range(len(Graph.vertices)):
+        if v in Graph.edges[s] and not visited[v]:
+            DFS(v, visited)
 
+
+def find_minCut(source, sink):
+    parent = [-1] * sink
+    maximum_flow = 0
+
+    while BFS(source, sink, parent):
+        flow = float('infinity')
+        vertex = sink
+        while vertex != source:
+            flow = min(flow, parent[vertex])
+            vertex = parent[vertex]
+
+        maximum_flow += flow
+        vertex = sink
+        while vertex != source:
+            u = parent[vertex]
+            Graph.weight[u, vertex] -= flow
+            Graph.weight[vertex, u] += flow
+            vertex = parent[vertex]
+
+        visited = len(Graph.vertices) * [False]
+        DFS(source, visited)
 
 
 if __name__ == "__main__":
