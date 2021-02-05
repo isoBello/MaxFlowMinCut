@@ -24,8 +24,10 @@ def add_edge(u, v, edges):
     edges[v].append(u)
 
 
-# def add_weighted_edge(u, v, wedges, weights):
-
+def add_weighted_edge(u, v, wedges, weights):
+    # This method is because now our graoh is directed
+    wedges[u].append(v)
+    weights[u, v] = 1
 
 
 def isBipartite(vertex, edges, color):
@@ -61,7 +63,7 @@ def coloring_graph(vertices, edges):
     return color if True else False
 
 
-def create_bipartite(color, edges):
+def create_bipartite(color, edges, source, sink):
     A = set()
     B = set()
     for i in range(len(color)):
@@ -71,9 +73,19 @@ def create_bipartite(color, edges):
             B.add(i)
     A.remove(0)
 
-    # new_vertices = ['s']
+    weights = {}
+    wedges = defaultdict(list)
+    netflow = [source]
 
-
+    for u in A:
+        add_weighted_edge(source, u, wedges, weights)
+        netflow.append(u)
+        for v in edges[u]:
+            add_weighted_edge(u, v, wedges, weights)
+    for u in B:
+        add_weighted_edge(u, sink, wedges, weights)
+        netflow.append(u)
+    netflow.append(sink)
 
 # # This is based on the implementation of the CLRS book.
 # # The ford-fulkerson algorithm needs to run BFS to find the augmentation path.
@@ -145,7 +157,7 @@ def create_bipartite(color, edges):
 if __name__ == "__main__":
     vertices, edges = create_graph()
     colors = coloring_graph(vertices, edges)
-    create_bipartite(colors, edges)
+    create_bipartite(colors, edges, source=0, sink=len(vertices) + 1)
 
     # isBipartite(vertices, edges)
     # find_minCut(len(vertices), 1, vertices, edges, weights)
