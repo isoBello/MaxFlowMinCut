@@ -112,14 +112,32 @@ def BFS(A, left, right, dist, wedges):
     return True if dist[0] != float('infinity') else False
 
 
+def DFS(u, left, right, dist, wedges):
+    if u != 0:
+        for v in wedges[u]:
+            if dist[right[v]] == dist[u] + 1:
+                if DFS(right[v], left, right, dist, wedges):
+                    right[v] = u
+                    left[u] = v
+                    return True
+        dist[u] = float('infinity')
+        return False
+    return True
+
+
 def hopcroft_karp(netflow, wedges, weights, A, B):
-    left = [0] * (len(A) + 1)
-    right = [0] * (len(B) + 1)
+    left = [0] * (len(netflow) + 1)
+    right = [0] * (len(netflow) + 1)
 
     dist = [float('infinity')] * (len(A) + 1)
     answer = 0
 
-    # while(BFS(A, left, right, dist, wedges)):
+    while BFS(A, left, right, dist, wedges):
+        for u in range(len(left)):
+            if left[u] == 0 and DFS(u, left, right, dist, wedges):
+                answer += 1
+
+    return answer
 
 # # This is based on the implementation of the CLRS book.
 # # The ford-fulkerson algorithm needs to run BFS to find the augmentation path.
@@ -194,5 +212,6 @@ if __name__ == "__main__":
     vertices, edges = create_graph()
     colors = coloring_graph(vertices, edges)
     netflow, wedges, weights, A, B = create_bipartite(colors, edges, source=0, sink=len(vertices) + 1)
-    hopcroft_karp(netflow, wedges, weights, A, B)
+    result = hopcroft_karp(netflow, wedges, weights, A, B)
+    print(result)
     # find_minCut(netflow, wedges, weights, A, B, source=0, sink=len(vertices) + 1)
