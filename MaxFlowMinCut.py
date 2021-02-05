@@ -91,14 +91,35 @@ def create_bipartite(color, edges, source, sink):
     return netflow, wedges, weights, A, B
 
 
+def BFS(A, left, right, dist, wedges):
+    stack = []
+    for u in A:
+        if left[u] == 0:
+            dist[u] = 0
+            stack.append(u)
+        else:
+            dist[u] = float('infinity')
+
+    dist[0] = float('infinity')
+    while stack:
+        u = stack.pop()
+        if dist[u] < dist[0]:
+            for v in wedges[u]:
+                if dist[right[v]] == float('infinity'):
+                    dist[right[v]] = dist[u] + 1
+                    stack.append(right[v])
+
+    return True if dist[0] != float('infinity') else False
+
+
 def hopcroft_karp(netflow, wedges, weights, A, B):
-    left_side = [-1] * (len(A) + 1)
-    right_side = [-1] * (len(B) + 1)
+    left = [0] * (len(A) + 1)
+    right = [0] * (len(B) + 1)
 
     dist = [float('infinity')] * (len(A) + 1)
     answer = 0
 
-    # while(BFS()):
+    # while(BFS(A, left, right, dist, wedges)):
 
 # # This is based on the implementation of the CLRS book.
 # # The ford-fulkerson algorithm needs to run BFS to find the augmentation path.
